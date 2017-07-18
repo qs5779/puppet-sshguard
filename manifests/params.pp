@@ -11,7 +11,7 @@
 class sshguard::params {
 
   case $::osfamily {
-    'Debian': {
+    /^(Debian|RedHat)$/: {
       $package_name = 'sshguard'
       $service_name = 'sshguard'
     }
@@ -28,9 +28,16 @@ class sshguard::params {
 
   $enable_firewall = 1
 
-  $logfiles = ['/var/log/auth.log']
+  case $::osfamily {
+    /^RedHat$/: {
+      $logfiles = ['/var/log/secure']
+    }
+    default: {
+      $logfiles = ['/var/log/auth.log']
+    }
+  }
 
-  $whitelist = ['127.0.0.0/8']
+  $whitelist = ['127.0.0.0/8', '::1/128']
 
   $safety_thresh = 40
 

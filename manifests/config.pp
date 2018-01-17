@@ -35,4 +35,15 @@ class sshguard::config inherits sshguard {
     content => template("${module_name}/default.erb"),
   }
 
+  if $::service_provider == 'systemd' {
+    # if i undstand correctly it depends on starting after whatever regular firewall service is in place
+    ini_setting { 'sshguard.systemd.after':
+      ensure  => present,
+      path    => '/lib/systemd/system/sshguard.service',
+      section => 'Unit',
+      setting => 'After',
+      value   => 'network.service firewalld.service ufw.service iptables.service ip6tables.service', #  ebtables.service ipset.service ?
+    }
+  }
+
 }

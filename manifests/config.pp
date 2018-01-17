@@ -36,6 +36,13 @@ class sshguard::config inherits sshguard {
   }
 
   if $::service_provider == 'systemd' {
+
+    exec { 'sshguard.daemon.reload':
+      refreshonly => true,
+      command     => 'systemctl daemon-reload',
+      path        => '/usr/sbin:/sbin:/usr/bin:/bin',
+    }
+
     # if i undstand correctly it depends on starting after whatever regular firewall service is in place
     ini_setting { 'sshguard.systemd.after':
       ensure  => present,
@@ -43,6 +50,18 @@ class sshguard::config inherits sshguard {
       section => 'Unit',
       setting => 'After',
       value   => 'network.service firewalld.service ufw.service iptables.service ip6tables.service', #  ebtables.service ipset.service ?
+      notify  => Exec['sshguard.daemon.reload'],
+    }
+
+    if ::lsbdistid == 'Raspbian' {
+      ini_setting { 'sshguard.systemd.execstart':
+        ensure  => present,
+        path    => '/lib/systemd/system/sshguard.service',
+        section => 'Service',
+        setting => 'ExecStart',
+        value   => '/usr/sbin/sshguard -i /run/sshguard.pid -w $WHITELIST $LOGFILES $ARGS',
+        notify  => Exec['sshguard.daemon.reload'],
+      }
     }
   }
 

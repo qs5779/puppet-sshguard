@@ -19,4 +19,8 @@ LOGFILES="<%= scope['sshguard::logfiles'].map{|logFile| "-l #{logFile}"}.join(" 
 WHITELIST="/etc/sshguard/whitelist"
 
 # Other options
+<% if @lsbdistid == 'Raspbian' -%>
+ARGS="${LOGFILES} -a <%= scope['sshguard::safety_thresh'] %> -p <%= scope['sshguard::pardon_min_interval'] %> -s <%= scope['sshguard::prescribe_interval'] %>"
+<%else -%>
 ARGS="-a <%= scope['sshguard::safety_thresh'] %> -p <%= scope['sshguard::pardon_min_interval'] %> -s <%= scope['sshguard::prescribe_interval'] %>"
+<%end -%>

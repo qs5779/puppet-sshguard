@@ -53,7 +53,7 @@ class sshguard::config inherits sshguard {
       notify  => Exec['sshguard.daemon.reload'],
     }
 
-    if ::lsbdistid == 'Raspbian' {
+    if $::lsbdistid == 'Raspbian' {
       ini_setting { 'sshguard.systemd.execstart':
         ensure  => present,
         path    => '/lib/systemd/system/sshguard.service',
